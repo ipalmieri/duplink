@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# This script automatically deduplicates NTFS filesystem trees 
 
 # =======================================================================
 # Configuration and environment variables 
@@ -70,9 +71,9 @@ start_dedup()
 # Prints help
 help() 
 {
-	echo "Dedup files in a NTFS volume"
-	echo "Use:" 
-	echo "   $0 <device> <mountpoint> <folder>"
+    echo "Dedup files in a NTFS volume"
+    echo "Use:" 
+    echo "   $0 <device> <mountpoint> <folder>"
     echo "   $0 <device> <mountpoint> <source> <target>"
     echo "Folders are relative to mountpoint"
     exit 1
