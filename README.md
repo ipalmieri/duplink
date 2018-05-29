@@ -6,8 +6,8 @@ Includes script do automatically dedup files in NTFS volumes
 
 ## Prerequisites
 
-python 3.6 
-ntfs-3g
+- python 3.6 
+- ntfs-3g
 
 ## Running
 
