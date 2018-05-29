@@ -5,9 +5,11 @@ import argparse
 import sys
 import os
 import filecmp
+import shlex
 
 output_filename = "linklist.out"
 output_fileobj = None
+global_separator = " "
 
 ###########################################################
 # File attributes
@@ -26,8 +28,10 @@ class fileInfo():
 ###########################################################
 # Delete old file, and hard-link to source
 def dedup_file(source, target):
+    global global_separator
     # Just write to output file
-    output_fileobj.write(source.path + " " + target.path + "\n") 
+    output_fileobj.write(shlex.quote(source.path) + global_separator \
+        + shlex.quote(target.path) + "\n") 
     return True
 
 
@@ -52,8 +56,7 @@ def dedup_all(tpath, r_table):
             if f_target.hash in r_table:
                 f_entry = r_table[f_target.hash]
                 # Check if not already hard linked
-                if (f_entry.stat.st_dev, f_entry.stat.st_ino) \
-                    != (f_target.stat.st_dev, f_target.stat.st_ino): 
+                if not os.path.samefile(f_entry.path, f_target.path):
                     # Check if content is the same, collision proof
                     if filecmp.cmp(f_entry.path, f_target.path, False):
                         # Check if source is older than target
@@ -64,7 +67,7 @@ def dedup_all(tpath, r_table):
                                 f_dsize = f_dsize + f_target.stat.st_size
                         else:             
                                 print(f_target.path + " is older than source file " + \
-                                    f_entry.path + " please access manually")
+                                    f_entry.path + " please check them manually")
     print(str(f_count) + " file(s) scanned")
     print(str(f_dedup) + " file(s) marked to be deduped")
     print("Potential saving: " + str(f_dsize) + " bytes")
