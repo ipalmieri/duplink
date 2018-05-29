@@ -8,7 +8,10 @@ LISTFILE="linklist.out"
 
 # =======================================================================
 # Main dedup loop
-# $1 = link list filename
+# $1 = device containing NTFS partition (e.g. /dev/sd0i)
+# $2 = temporary mountpoint
+# $3 = source folder relative to mountpoint
+# $4 = (optional) target folder relative to mountpoint
 start_dedup()
 {
     device=$1
