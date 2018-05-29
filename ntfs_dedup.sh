@@ -1,52 +1,90 @@
-#!/bin/bash
+#!/bin/sh
 
 
 # =======================================================================
 # Configuration and environment variables 
-
+LISTFILE="linklist.out"
 
 # =======================================================================
 # Main dedup loop
 # $1 = link list filename
 start_dedup()
 {
-        for i in "${INSTANCES[@]}"; do
-
-                if [ "$1" == "$i" ]; then
-
-                        if [ -d $BASEDIR/$1 ]; then
-
-                                return
-                        fi
-                fi
-        done
-
+    device=$1
+    mntpoint=$2
+    # Mount volume using default driver
+    echo "** Step 1: mount NTFS read-only"
+    if mount | grep $mntpoint > /dev/null ; then
+        echo "Error: $mntpoint is already mounted"
         exit 1
+    fi    
+    /sbin/mount -v -t ntfs $device $mntpoint
+    if [[ $? -ne 0 ]] ; then
+        echo "Error mounting $device"
+        exit 1
+    fi   
+    # Check folders and run genlist
+    echo "** Step 2: generate link list"
+    sourcef=$2/$3
+    if [[ $# -eq 3 ]] ; then
+        python3 genlist.py $sourcef
+    elif [[ $# -eq 4 ]] ; then
+        targetf=$2/$4
+        python3 genlist.py $sourcef $targetf 
+    fi
+    if [[ $? -ne 0 ]] ; then
+        "Error running genlist"
+        /sbin/umount $mntpoint
+        exit 1
+    fi    
+    # Re-mount volume using ntfs-3g
+    echo "** Step 3: umount NTFS and mount read-write ntfs-3g"
+    /sbin/umount -v $mntpoint
+    if [[ $? -ne 0 ]] ; then
+        "Error umouting $mntpoint, aborted"
+        exit 1
+    fi
+    if ! [[ -s $LISTFILE ]] ; then
+        echo "No possible dedup to be done, exiting"
+        exit 0
+    fi    
+    /usr/local/bin/ntfs-3g $device $mntpoint
+    if [[ $? -ne 0 ]] ; then
+        "Error mouting $mntpoint using ntfs-3g"
+        exit 1
+    fi    
+    # Run linklist to dedup files
+    echo "** Step 4: dedup files from list"
+    python3 linkfiles.py $LISTFILE
+    if [[ $? -ne 0 ]] ; then
+        "Error deduping files"
+        /sbin/umount $mntpoint
+        exit 1
+    fi
+    /sbin/umount -v $mntpoint
+    exit 0
 }
+
 
 # =======================================================================
 # Prints help
-help() {
-	echo Dedup files, creating hard links from a previously generated list 
-	echo Use: 
-	echo	$0 "<link list file>"
+help() 
+{
+	echo "Dedup files in a NTFS volume"
+	echo "Use:" 
+	echo "   $0 <device> <mountpoint> <folder>"
+    echo "   $0 <device> <mountpoint> <source> <target>"
+    echo "Folders are relative to mountpoint"
     exit 1
 }
 
 
 # =======================================================================
 ## Options parsing
-
-if [[ $# -eq 1 ]] ; then
-
-    if [[ -f "$1" ]] ; then
-        start_dedup $1 
-    elif [[ "$1" == "--help" ]] || [[ "$1" == "-h" ]] ; then
-        help
-    else
-        echo "$1 is not a valid file"
-        help
-    fi
+if [[ $# -eq 3 ]] ; then
+    start_dedup $1 $2 $3
+elif [[ $# -eq 4 ]] ; then
+    start_dedup $1 $2 $3 $4
 else
 	help
 fi
