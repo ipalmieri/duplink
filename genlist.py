@@ -61,13 +61,13 @@ def dedup_all(tpath, r_table):
                     if filecmp.cmp(f_entry.path, f_target.path, False):
                         # Check if source is older than target
                         if f_entry.stat.st_mtime <= f_target.stat.st_mtime:
-                           # Check if dedup of file was successful
+                            # Check if dedup of file was successful
                             if dedup_file(f_entry, f_target):
                                 f_dedup = f_dedup + 1
                                 f_dsize = f_dsize + f_target.stat.st_size
                         else:             
-                                print(f_target.path + " is older than source file " + \
-                                    f_entry.path + " please check them manually")
+                            print(f_target.path + " is older than source file " + \
+                                f_entry.path + " please check them manually")
     print(str(f_count) + " file(s) scanned")
     print(str(f_dedup) + " file(s) marked to be deduped")
     print("Potential saving: " + str(f_dsize) + " bytes")
