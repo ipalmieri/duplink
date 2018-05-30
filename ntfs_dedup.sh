@@ -42,10 +42,10 @@ start_dedup()
         exit 1
     fi    
     # Re-mount volume using ntfs-3g
-    echo "** Step 3: umount NTFS and mount read-write ntfs-3g"
+    echo "** Step 3: unmount NTFS and mount read-write ntfs-3g"
     /sbin/umount -v $mntpoint
     if [[ $? -ne 0 ]] ; then
-        echo "Error umouting $mntpoint, aborted"
+        echo "Error unmounting $mntpoint, aborted"
         exit 1
     fi
     if ! [[ -s $LISTFILE ]] ; then
@@ -54,7 +54,7 @@ start_dedup()
     fi    
     /usr/local/bin/ntfs-3g $device $mntpoint
     if [[ $? -ne 0 ]] ; then
-        echo "Error mouting $mntpoint using ntfs-3g"
+        echo "Error mounting $mntpoint using ntfs-3g"
         exit 1
     fi    
     # Run linklist to dedup files
