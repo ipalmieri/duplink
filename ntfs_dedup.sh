@@ -37,7 +37,7 @@ start_dedup()
         python3 genlist.py $sourcef $targetf 
     fi
     if [[ $? -ne 0 ]] ; then
-        "Error running genlist"
+        echo "Error running genlist"
         /sbin/umount $mntpoint
         exit 1
     fi    
@@ -45,7 +45,7 @@ start_dedup()
     echo "** Step 3: umount NTFS and mount read-write ntfs-3g"
     /sbin/umount -v $mntpoint
     if [[ $? -ne 0 ]] ; then
-        "Error umouting $mntpoint, aborted"
+        echo "Error umouting $mntpoint, aborted"
         exit 1
     fi
     if ! [[ -s $LISTFILE ]] ; then
@@ -54,14 +54,14 @@ start_dedup()
     fi    
     /usr/local/bin/ntfs-3g $device $mntpoint
     if [[ $? -ne 0 ]] ; then
-        "Error mouting $mntpoint using ntfs-3g"
+        echo "Error mouting $mntpoint using ntfs-3g"
         exit 1
     fi    
     # Run linklist to dedup files
     echo "** Step 4: dedup files from list"
     python3 linkfiles.py $LISTFILE
     if [[ $? -ne 0 ]] ; then
-        "Error deduping files"
+        echo "Error deduping files"
         /sbin/umount $mntpoint
         exit 1
     fi
