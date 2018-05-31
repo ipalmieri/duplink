@@ -22,8 +22,8 @@ start_dedup()
         echo "Error: $mntpoint is already mounted"
         exit 1
     fi    
-    #/sbin/mount -v -t ntfs $device $mntpoint
-    /usr/local/bin/ntfs-3g -o ro $device $mntpoint
+    /sbin/mount -v -t ntfs $device $mntpoint
+    #/usr/local/bin/ntfs-3g -o ro $device $mntpoint
     if [[ $? -ne 0 ]] ; then
         echo "Error mounting $device"
         exit 1
