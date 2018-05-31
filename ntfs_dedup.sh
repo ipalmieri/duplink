@@ -32,10 +32,10 @@ start_dedup()
     echo "** Step 2: generate link list"
     sourcef=$2/$3
     if [[ $# -eq 3 ]] ; then
-        python3 genlist.py $sourcef
+        python3 -u genlist.py $sourcef
     elif [[ $# -eq 4 ]] ; then
         targetf=$2/$4
-        python3 genlist.py $sourcef $targetf 
+        python3 -u genlist.py $sourcef $targetf 
     fi
     if [[ $? -ne 0 ]] ; then
         echo "Error running genlist"
@@ -60,7 +60,7 @@ start_dedup()
     fi    
     # Run linklist to dedup files
     echo "** Step 4: dedup files from list"
-    python3 linkfiles.py $LISTFILE
+    python3 -u linkfiles.py $LISTFILE
     if [[ $? -ne 0 ]] ; then
         echo "Error deduping files"
         /sbin/umount $mntpoint
